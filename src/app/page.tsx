@@ -182,15 +182,14 @@ function ChaosSlotMachineScreen() {
 // Vote-Pass screen — inter-vote privacy screen shown between each voter
 function VotePassScreen() {
   const session = useGameStore(s => s.session)
-  const setScreen = useGameStore.setState
+  const votes = useGameStore(s => s.votes)
   if (!session) return null
 
-  // Determine who votes next
-  const votes = useGameStore.getState().votes
+  // Determine who votes next — the first living player who hasn't voted yet
   const livingPlayers = session.assignments
     .filter(a => !a.eliminated)
     .map(a => session.players.find(p => p.id === a.playerId)!)
-  const nextVoter = livingPlayers.find(p => !votes.has(p.id)) ?? livingPlayers[0]
+  const nextVoter = livingPlayers.find(p => !votes.has(p.id)) ?? null
 
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center bg-background px-6">
@@ -212,7 +211,7 @@ function VotePassScreen() {
         </p>
         <div className="mt-8">
           <button
-            onClick={() => setScreen({ gameScreen: 'voting' })}
+            onClick={() => useGameStore.setState({ gameScreen: 'voting' })}
             className="rounded-2xl bg-primary px-10 py-4 font-semibold text-primary-foreground shadow-lg"
           >
             {nextVoter?.displayName} ist bereit

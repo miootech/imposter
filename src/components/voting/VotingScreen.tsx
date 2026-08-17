@@ -17,9 +17,9 @@ export function VotingScreen() {
   const votes = useGameStore(s => s.votes)
   const submitVote = useGameStore(s => s.submitVote)
   const finishVoting = useGameStore(s => s.finishVoting)
-  const [currentVoterIndex, setCurrentVoterIndex] = useState(0)
   const [confirming, setConfirming] = useState(false)
   const [confirmed, setConfirmed] = useState(false)
+  const [selectedTarget, setSelectedTarget] = useState<{ id: string; displayName: string; color: string } | null>(null)
 
   if (!session) return null
 
@@ -27,8 +27,11 @@ export function VotingScreen() {
   const livingPlayers = session.assignments
     .filter(a => !a.eliminated)
     .map(a => session.players.find(p => p.id === a.playerId)!)
-  const currentVoter = livingPlayers[currentVoterIndex]
-  const alreadyVoted = currentVoter ? votes.has(currentVoter.id) : false
+
+  // Derive the current voter directly from votes map — the first living player
+  // who hasn't voted yet. This way we don't need a local index state and the
+  // voter is always correct after returning from the vote-pass screen.
+  const currentVoter = livingPlayers.find(p => !votes.has(p.id)) ?? null
 
   const handleConfirm = () => {
     if (!currentVoter || !selectedTarget) return
@@ -38,30 +41,34 @@ export function VotingScreen() {
     playSound('vote')
 
     setTimeout(() => {
-      if (currentVoterIndex + 1 >= livingPlayers.length) {
+      // Check if there are more voters after this one
+      const remainingVoters = livingPlayers.filter(p =>
+        p.id !== currentVoter.id && !votes.has(p.id)
+      )
+      // Note: votes.has(p.id) won't be true yet because submitVote already
+      // updated the store, but our local closure of `votes` is stale.
+      // Instead, count remaining = livingPlayers - voted - current
+      const votedCount = votes.size + 1  // +1 because we just submitted
+      if (votedCount >= livingPlayers.length) {
         finishVoting()
       } else {
-        // Advance to next voter + show inter-vote pass screen
-        setCurrentVoterIndex(i => i + 1)
+        // Reset local UI state + show inter-vote pass screen
         setConfirmed(false)
         setConfirming(false)
         setSelectedTarget(null)
-        // Trigger the inter-vote pass screen
         useGameStore.setState({ gameScreen: 'vote-pass' })
       }
     }, 800)
   }
 
-  const [selectedTarget, setSelectedTarget] = useState<{ id: string; displayName: string; color: string } | null>(null)
-
   useEffect(() => {
     setSelectedTarget(null)
     setConfirming(false)
     setConfirmed(false)
-  }, [currentVoterIndex])
+  }, [currentVoter?.id])
 
   // All voted — go to results
-  if (currentVoterIndex >= livingPlayers.length) {
+  if (!currentVoter) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
@@ -104,7 +111,7 @@ export function VotingScreen() {
           className="mb-6 text-center"
         >
           <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-            Abstimmung · {currentVoterIndex + 1} / {livingPlayers.length}
+            Abstimmung · {votes.size + 1} / {livingPlayers.length}
           </p>
           <h1 className="mt-2 text-3xl font-bold text-foreground">
             {currentVoter.displayName}
