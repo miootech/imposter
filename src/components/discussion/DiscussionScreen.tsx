@@ -3,11 +3,14 @@
 import { motion } from 'framer-motion'
 import { useEffect, useState, useRef } from 'react'
 import { useGameStore } from '@/stores/gameStore'
+import { usePreferencesStore } from '@/stores/preferencesStore'
 import { GameButton } from '@/components/game/GameButton'
 import { TimerRing } from '@/components/game/TimerRing'
 import { ChaosBanner } from '@/components/game/ChaosBanner'
+import { GradientTimerBg } from '@/components/game/GradientTimerBg'
 import { currentTimerSeconds } from '@/lib/game/services/GameSessionManager'
 import { haptic } from '@/lib/game/services/haptics'
+import { TIMER_WARNING_THRESHOLD_SECONDS } from '@/lib/game/models'
 
 export function DiscussionScreen() {
   const session = useGameStore(s => s.session)
@@ -41,9 +44,16 @@ export function DiscussionScreen() {
   const total = currentTimerSeconds(session)
   const startPlayer = session.players.find(p => p.id === session.startPlayerId)
 
+  const gradientTimerBg = usePreferencesStore(s => s.gradientTimerBg)
+  const isWarning = remaining <= TIMER_WARNING_THRESHOLD_SECONDS && remaining > 0
+
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center bg-background px-6">
-      <div className="w-full max-w-md">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-background px-6 overflow-hidden">
+      {/* Optional animated gradient background */}
+      {gradientTimerBg && (
+        <GradientTimerBg warning={isWarning} round={session.round} />
+      )}
+      <div className="relative z-10 w-full max-w-md">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

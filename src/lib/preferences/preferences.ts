@@ -30,6 +30,8 @@ export interface Preferences {
   username: string
   /** Profile emoji chosen by the device owner. */
   userEmoji: string
+  /** Show a random animated gradient background behind the timer during discussion */
+  gradientTimerBg: boolean
 }
 
 export function defaultPreferences(): Preferences {
@@ -49,6 +51,7 @@ export function defaultPreferences(): Preferences {
     lastUsedMode: 'normal',
     username: '',
     userEmoji: '🦊',
+    gradientTimerBg: false,
   }
 }
 

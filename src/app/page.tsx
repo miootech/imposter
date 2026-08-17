@@ -17,6 +17,7 @@ import { DiscussionScreen } from '@/components/discussion/DiscussionScreen'
 import { VotingScreen } from '@/components/voting/VotingScreen'
 import { VotingResultsScreen, EliminationScreen } from '@/components/voting/VotingResultsScreen'
 import { ResultsScreen } from '@/components/results/ResultsScreen'
+import { ChaosSlotMachine } from '@/components/game/ChaosSlotMachine'
 
 function AppShell() {
   const activeTab = useGameStore(s => s.activeTab)
@@ -43,9 +44,11 @@ function AppShell() {
             {gameScreen === 'setup' && <SetupScreen />}
             {gameScreen === 'reveal' && <RevealScreen />}
             {gameScreen === 'reveal-between' && <RevealBetweenScreen />}
+            {gameScreen === 'chaos-reveal' && <ChaosSlotMachineScreen />}
             {gameScreen === 'start-player' && <StartPlayerScreen />}
             {gameScreen === 'discussion' && <DiscussionScreen />}
             {gameScreen === 'voting' && <VotingScreen />}
+            {gameScreen === 'vote-pass' && <VotePassScreen />}
             {gameScreen === 'voting-results' && <VotingResultsScreen />}
             {gameScreen === 'elimination' && <EliminationScreen />}
             {gameScreen === 'results' && <ResultsScreen />}
@@ -106,7 +109,14 @@ function RevealBetweenScreen() {
           </p>
           <div className="mt-8">
             <button
-              onClick={() => startPlay()}
+              onClick={() => {
+                // If chaos mode is active and a modifier is set, show slot machine first
+                if (session.config.chaosMode && session.chaosState.modifier !== 'none') {
+                  useGameStore.setState({ gameScreen: 'chaos-reveal' })
+                } else {
+                  startPlay()
+                }
+              }}
               className="rounded-2xl bg-primary px-10 py-4 font-semibold text-primary-foreground shadow-lg"
             >
               Spiel starten
@@ -154,6 +164,63 @@ function RevealBetweenScreen() {
 
 function PrivacyGuardSimple() {
   return null
+}
+
+// Chaos slot machine screen — shown after reveal if chaos mode is active
+function ChaosSlotMachineScreen() {
+  const session = useGameStore(s => s.session)
+  const startPlay = useGameStore(s => s.startPlay)
+  if (!session) return null
+  return (
+    <ChaosSlotMachine
+      chaosState={session.chaosState}
+      onContinue={() => startPlay()}
+    />
+  )
+}
+
+// Vote-Pass screen — inter-vote privacy screen shown between each voter
+function VotePassScreen() {
+  const session = useGameStore(s => s.session)
+  const setScreen = useGameStore.setState
+  if (!session) return null
+
+  // Determine who votes next
+  const votes = useGameStore.getState().votes
+  const livingPlayers = session.assignments
+    .filter(a => !a.eliminated)
+    .map(a => session.players.find(p => p.id === a.playerId)!)
+  const nextVoter = livingPlayers.find(p => !votes.has(p.id)) ?? livingPlayers[0]
+
+  return (
+    <div className="fixed inset-0 flex flex-col items-center justify-center bg-background px-6">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col items-center text-center"
+      >
+        <motion.div
+          animate={{ rotate: [0, -10, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-muted text-4xl"
+        >
+          📱
+        </motion.div>
+        <h2 className="text-2xl font-bold text-foreground">Smartphone weitergeben</h2>
+        <p className="mt-2 max-w-xs text-sm text-muted-foreground">
+          An <span className="font-bold text-foreground">{nextVoter?.displayName}</span> weitergeben.
+        </p>
+        <div className="mt-8">
+          <button
+            onClick={() => setScreen({ gameScreen: 'voting' })}
+            className="rounded-2xl bg-primary px-10 py-4 font-semibold text-primary-foreground shadow-lg"
+          >
+            {nextVoter?.displayName} ist bereit
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
 }
 
 export default function Home() {

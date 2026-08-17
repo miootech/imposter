@@ -1,14 +1,16 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Moon, Sun, Volume2, VolumeX, Vibrate, VibrateOff, Smile, RotateCcw, Info } from 'lucide-react'
+import { Moon, Sun, Volume2, VolumeX, Vibrate, VibrateOff, Smile, RotateCcw, Info, Sparkles } from 'lucide-react'
 import { usePreferencesStore } from '@/stores/preferencesStore'
 import { ROLES, type RoleId } from '@/lib/game/models'
 import { GameButton } from '@/components/game/GameButton'
 import { DonutStatsRing, type DonutSegment } from '@/components/game/DonutStatsRing'
 import { PlayerStatsBottomSheet, type StatsModalEntry } from '@/components/game/PlayerStatsBottomSheet'
 import { UserProfileSection } from '@/components/settings/UserProfileSection'
+import { CustomEmojiInput } from '@/components/common/CustomEmojiInput'
 import { aggregateGlobalStats } from '@/lib/repositories/groupRepository'
+import { getDb } from '@/lib/db/localDb'
 import { haptic } from '@/lib/game/services/haptics'
 import { playSound } from '@/lib/game/services/sound'
 import {
@@ -33,14 +35,25 @@ export function SettingsScreen() {
     let cancelled = false
     ;(async () => {
       try {
-        const agg = await aggregateGlobalStats()
+        const [agg, totalGameSessions, allResults] = await Promise.all([
+          aggregateGlobalStats(),
+          // Count distinct game sessions (1 per completed game, NOT sum over players)
+          getDb().results.count().catch(() => 0),
+          // Fetch all results so we can compute faction wins (1 per game, not N×players)
+          getDb().results.toArray().catch(() => [] as Array<{ winnerFaction: string }>),
+        ])
         if (cancelled) return
+        // Compute faction wins from results: 1 win per game (not per player)
+        const crewWins = allResults.filter(r => r.winnerFaction === 'crew').length
+        const traitorWins = allResults.filter(r => r.winnerFaction === 'traitor').length
         // Build totals across all players
+        // Note: gamesPlayed/wins/losses use real session counts (1 per game, not N×players)
+        // roleCount/eliminations/survived are summed per-player (each is a player-specific event)
         const totals = agg.reduce(
           (acc, p) => ({
-            gamesPlayed: acc.gamesPlayed + p.gamesPlayed,
-            wins: acc.wins + p.wins,
-            losses: acc.losses + p.losses,
+            gamesPlayed: totalGameSessions,
+            wins: crewWins + traitorWins > 0 ? crewWins : acc.wins,  // overwrite with real faction wins
+            losses: crewWins + traitorWins > 0 ? traitorWins : acc.losses,
             totalPoints: acc.totalPoints + p.totalPoints,
             eliminations: acc.eliminations + p.eliminations,
             survived: acc.survived + p.survived,
@@ -197,6 +210,16 @@ export function SettingsScreen() {
               const next = !prefs.hapticsEnabled
               prefs.setHapticsEnabled(next)
               if (next) haptic('heavy')
+            }}
+          />
+          <ToggleRow
+            label="Timer-Gradient"
+            description="Animierter Gradient-Hintergrund während der Diskussion"
+            icon={<Sparkles className="h-5 w-5" />}
+            enabled={prefs.gradientTimerBg}
+            onToggle={() => {
+              haptic('medium')
+              prefs.setGradientTimerBg(!prefs.gradientTimerBg)
             }}
           />
         </Section>
@@ -410,8 +433,24 @@ function EmojiPickerDialog({
             </button>
           ))}
         </div>
+
+        {/* Custom emoji input for roles */}
+        <div className="mt-3">
+          <CustomEmojiInput
+            currentEmoji={currentEmoji}
+            onSelect={(emoji) => {
+              if (role) {
+                prefs.setRoleEmoji(role, emoji)
+                haptic('success')
+                playSound('vote')
+              }
+              setEmojiPickerOpen(null)
+            }}
+          />
+        </div>
+
         <p className="text-center text-xs text-muted-foreground">
-          Tippe ein Emoji an, um es auszuwählen.
+          Tippe ein Emoji an oder gib ein eigenes ein.
         </p>
       </DialogContent>
     </Dialog>

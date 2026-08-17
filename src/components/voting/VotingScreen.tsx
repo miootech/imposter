@@ -41,10 +41,13 @@ export function VotingScreen() {
       if (currentVoterIndex + 1 >= livingPlayers.length) {
         finishVoting()
       } else {
+        // Advance to next voter + show inter-vote pass screen
         setCurrentVoterIndex(i => i + 1)
         setConfirmed(false)
         setConfirming(false)
         setSelectedTarget(null)
+        // Trigger the inter-vote pass screen
+        useGameStore.setState({ gameScreen: 'vote-pass' })
       }
     }, 800)
   }
@@ -123,17 +126,19 @@ export function VotingScreen() {
           </motion.div>
         )}
 
-        {/* Voter color indicator */}
+        {/* Voter color indicator — subtle accent bar */}
         <div className="mb-6 flex justify-center">
-          <div
-            className="h-2 w-16 rounded-full"
+          <motion.div
+            className="h-1.5 w-20 rounded-full"
             style={{ backgroundColor: currentVoter.color }}
+            animate={{ opacity: [0.6, 1, 0.6] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
           />
         </div>
 
-        {/* Candidates */}
-        <div className="space-y-2">
-          {livingPlayers.map(p => {
+        {/* Candidates — Among Us inspired card grid (2 columns) */}
+        <div className="grid grid-cols-2 gap-2.5">
+          {livingPlayers.map((p, idx) => {
             const isSelected = selectedTarget?.id === p.id
             const isSelf = p.id === currentVoter.id
             return (
@@ -145,33 +150,40 @@ export function VotingScreen() {
                   setSelectedTarget({ id: p.id, displayName: p.displayName, color: p.color })
                   setConfirming(true)
                 }}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.04, type: 'spring', stiffness: 300, damping: 22 }}
                 className={cn(
-                  'flex w-full items-center gap-3 rounded-2xl p-4 text-left ring-2 transition-all',
+                  'group relative flex flex-col items-center gap-2 rounded-2xl p-4 text-center transition-all',
                   isSelected
-                    ? 'bg-card ring-primary shadow-md'
-                    : 'bg-card ring-border hover:bg-muted/30',
+                    ? 'bg-primary/10 ring-2 ring-primary shadow-lg'
+                    : 'bg-card ring-1 ring-border hover:ring-primary/30',
                 )}
-                whileTap={{ scale: 0.98 }}
+                whileTap={{ scale: 0.96 }}
               >
-                <div
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                {/* Large avatar circle */}
+                <motion.div
+                  className="flex h-14 w-14 items-center justify-center rounded-2xl text-base font-bold text-white shadow-md"
                   style={{ backgroundColor: p.color }}
+                  animate={isSelected ? { scale: [1, 1.1, 1] } : {}}
+                  transition={{ duration: 0.4 }}
                 >
                   {p.displayName.slice(0, 2).toUpperCase()}
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-foreground">{p.displayName}</p>
-                  {isSelf && (
-                    <p className="text-xs text-muted-foreground">Du selbst</p>
-                  )}
-                </div>
+                </motion.div>
+                <p className="text-sm font-semibold text-foreground">{p.displayName}</p>
+                {isSelf && (
+                  <span className="absolute -top-1.5 right-2 rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-bold uppercase text-muted-foreground">
+                    Du
+                  </span>
+                )}
                 {isSelected && (
                   <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground"
+                    initial={{ scale: 0, rotate: -90 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                    className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md ring-2 ring-background"
                   >
-                    <Check className="h-3.5 w-3.5" />
+                    <Check className="h-3.5 w-3.5" strokeWidth={3} />
                   </motion.div>
                 )}
               </motion.button>

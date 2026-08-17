@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { Pencil, Check, X } from 'lucide-react'
 import { usePreferencesStore } from '@/stores/preferencesStore'
 import { GameButton } from '@/components/game/GameButton'
+import { CustomEmojiInput } from '@/components/common/CustomEmojiInput'
 import { Input } from '@/components/ui/input'
 import {
   Dialog,
@@ -172,6 +173,19 @@ export function UserProfileSection() {
                 {emoji}
               </button>
             ))}
+          </div>
+
+          {/* Custom emoji input — type/paste a single emoji */}
+          <div className="mt-3">
+            <CustomEmojiInput
+              currentEmoji={userEmoji}
+              onSelect={(emoji) => {
+                setUserEmoji(emoji)
+                haptic('success')
+                playSound('vote')
+                setEmojiPickerOpen(false)
+              }}
+            />
           </div>
         </DialogContent>
       </Dialog>

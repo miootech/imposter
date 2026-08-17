@@ -26,6 +26,7 @@ interface PreferencesState extends Preferences {
   setLastUsedMode: (mode: GameMode) => void
   setUsername: (name: string) => void
   setUserEmoji: (emoji: string) => void
+  setGradientTimerBg: (enabled: boolean) => void
   reset: () => void
 }
 
@@ -75,6 +76,10 @@ export const usePreferencesStore = create<PreferencesState>((set, get) => ({
   },
   setUserEmoji: (emoji) => {
     set({ userEmoji: emoji })
+    savePreferences(get())
+  },
+  setGradientTimerBg: (enabled) => {
+    set({ gradientTimerBg: enabled })
     savePreferences(get())
   },
   reset: () => {

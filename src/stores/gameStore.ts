@@ -46,9 +46,11 @@ export type GameScreen =
   | 'setup'
   | 'reveal'
   | 'reveal-between'
+  | 'chaos-reveal'   // slot machine animation when chaos mode is active
   | 'start-player'
   | 'discussion'
   | 'voting'
+  | 'vote-pass'      // inter-vote privacy screen
   | 'voting-results'
   | 'elimination'
   | 'results'

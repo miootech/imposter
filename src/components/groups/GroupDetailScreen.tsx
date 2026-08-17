@@ -86,7 +86,9 @@ export function GroupDetailScreen() {
     )
   }
 
-  const totalGames = group.players.reduce((s, p) => s + p.stats.gamesPlayed, 0)
+  // Group games played = MAX of player games played (since all players play together each game)
+  // Using sum would give N× too much (e.g. 6 players × 1 game = 6)
+  const totalGames = group.players.reduce((s, p) => Math.max(s, p.stats.gamesPlayed), 0)
   const canPlay = group.players.length >= 3
 
   return (
@@ -225,13 +227,13 @@ export function GroupDetailScreen() {
         </div>
       </div>
 
-      {/* Floating play button */}
+      {/* Floating play button — sits above the bottom nav (which is ~64px tall + safe area) */}
       {canPlay && (
         <motion.div
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="fixed bottom-6 left-0 right-0 z-20 px-5"
-          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+          className="fixed left-0 right-0 z-20 px-5"
+          style={{ bottom: 'calc(72px + env(safe-area-inset-bottom))' }}
         >
           <div className="mx-auto max-w-md">
             <GameButton
