@@ -1,27 +1,21 @@
 import type { NextConfig } from "next";
 
+const isCapacitor = process.env.CAPACITOR_BUILD === "true";
+
 const nextConfig: NextConfig = {
-  // Static export for Capacitor Android app / Cloudflare Pages
-  // Generates /out directory with fully static HTML+JS+CSS
-  output: "export",
-  // Disable image optimization (static export can't run the optimization server)
+  // Standalone for web/sandbox deployment, export for Capacitor Android
+  output: isCapacitor ? "export" : "standalone",
+  // Disable image optimization (both standalone server in container & static export work smoothly)
   images: {
     unoptimized: true,
   },
-  // Trailing slash so all routes work as static files
+  // Trailing slash so all routes work as static files / relative paths
   trailingSlash: true,
   // TypeScript errors don't block the build
   typescript: {
-    ignoreBuildErrors: true,
-  },
-  // Disable ESLint during build
-  eslint: {
-    ignoreDuringBuilds: true,
+    ignoreBuildErrors: false,
   },
   reactStrictMode: false,
-  // IMPORTANT for Capacitor: don't set a basePath — the WebView loads files
-  // from `file:///android_asset/` and absolute paths break. We use relative
-  // paths throughout the app, and trailingSlash ensures all chunk URLs work.
 }
 
 export default nextConfig;

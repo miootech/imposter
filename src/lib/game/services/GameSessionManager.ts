@@ -47,7 +47,7 @@ export async function createSession(
   config: GameSetupConfig,
   players: Array<{ id: string; displayName: string; color: string }>,
   rng: () => number = Math.random,
-): GameSession {
+): Promise<GameSession> {
   const composition = computeRoleComposition(players.length, config)
   if (!composition) {
     throw new Error('Invalid role composition for this player count.')

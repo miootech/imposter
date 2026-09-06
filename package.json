@@ -11,7 +11,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
-    "cap:sync": "next build && npx cap sync android",
+    "cap:build": "node scripts/build-cap.mjs",
+    "cap:sync": "node scripts/build-cap.mjs && npx cap sync android",
     "cap:open": "npx cap open android",
     "cap:assets": "npx capacitor-assets generate --android",
     "cap:clean": "npx cap clean android"

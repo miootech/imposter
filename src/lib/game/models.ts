@@ -224,6 +224,14 @@ export interface GameSetupConfig {
   chaosMode: boolean
 }
 
+export interface RoleComposition {
+  impostor: number
+  accomplice: number
+  detective: number
+  jester: number
+  crewmate: number
+}
+
 // ============================================================================
 // IN-GAME SESSION STATE (§51)
 // ============================================================================
@@ -275,7 +283,7 @@ export interface GameSession {
   /** Whether jester survived to the end */
   jesterSurvived: boolean
   /** Active chaos state for the current round (or 'none' if chaos mode off) */
-  chaosState: import('../engines/ChaosEngine').ChaosState
+  chaosState: import('./engines/ChaosEngine').ChaosState
   /** Whether the martyr was eliminated this game (for scoring bonus) */
   martyrEliminated: boolean
   startedAt: number

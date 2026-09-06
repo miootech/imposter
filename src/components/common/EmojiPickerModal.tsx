@@ -131,7 +131,7 @@ export function EmojiPickerModal({
             transition={{ type: 'spring', stiffness: 300, damping: 18 }}
             className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-3xl bg-primary/10 shadow-sm ring-1 ring-primary/20"
           >
-            <IconRenderer icon={draft || '?'} size="text-5xl" rounded />
+            <IconRenderer icon={draft || '?'} size={56} shape="rounded" />
           </motion.div>
           <p className="mt-2 text-xs text-muted-foreground">Aktuelle Auswahl</p>
         </div>

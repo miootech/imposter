@@ -156,7 +156,7 @@ export function UserProfileSection() {
         open={emojiPickerOpen}
         onClose={() => setEmojiPickerOpen(false)}
         title="Profil-Emoji"
-        currentEmoji=<IconRenderer icon={userEmoji} />
+        currentEmoji={userEmoji}
         onSelect={(emoji) => setUserEmoji(emoji)}
       />
     </>

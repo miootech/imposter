@@ -9,7 +9,8 @@ import { playSound } from '@/lib/game/services/sound'
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'success'
 type Size = 'sm' | 'md' | 'lg' | 'xl'
 
-interface GameButtonProps extends Omit<HTMLMotionProps<'button'>, 'ref'> {
+interface GameButtonProps extends Omit<HTMLMotionProps<'button'>, 'ref' | 'children'> {
+  children?: React.ReactNode
   variant?: Variant
   size?: Size
   fullWidth?: boolean

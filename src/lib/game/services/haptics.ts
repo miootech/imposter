@@ -18,6 +18,7 @@ export type HapticPattern =
   | 'warning'
   | 'error'
   | 'tick'
+  | 'victory'
 
 const WEB_PATTERNS: Record<HapticPattern, number | number[]> = {
   light: 10,
@@ -27,6 +28,7 @@ const WEB_PATTERNS: Record<HapticPattern, number | number[]> = {
   warning: [15, 50, 15],
   error: [30, 50, 30],
   tick: 5,
+  victory: [10, 30, 30, 50, 30],
 }
 
 function webVibrate(pattern: HapticPattern): void {

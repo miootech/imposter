@@ -10,7 +10,7 @@
  */
 
 import Dexie, { type Table } from 'dexie'
-import type { Group, GameResult } from '../lib/game/models'
+import type { Group, GameResult } from '../game/models'
 
 export interface GroupRecord extends Group {
   id: string
