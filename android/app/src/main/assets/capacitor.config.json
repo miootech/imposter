@@ -1,0 +1,29 @@
+{
+	"appId": "com.imposter.partygame",
+	"appName": "Imposter",
+	"webDir": "out",
+	"android": {
+		"allowMixedContent": false,
+		"captureInput": true,
+		"webContentsDebuggingEnabled": false
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 1200,
+			"launchAutoHide": true,
+			"backgroundColor": "#0D0D0D",
+			"androidSplashResourceName": "splash",
+			"androidScaleType": "CENTER_CROP",
+			"showSpinner": false,
+			"android": {
+				"gravity": "center",
+				"backgroundColor": "#0D0D0D"
+			}
+		},
+		"StatusBar": {
+			"style": "LIGHT",
+			"backgroundColor": "#0D0D0D"
+		},
+		"Haptics": {}
+	}
+}

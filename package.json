@@ -15,7 +15,8 @@
     "cap:sync": "node scripts/build-cap.mjs && npx cap sync android",
     "cap:open": "npx cap open android",
     "cap:assets": "npx capacitor-assets generate --android",
-    "cap:clean": "npx cap clean android"
+    "cap:clean": "npx cap clean android",
+    "android:release": "node scripts/build-android-release.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",

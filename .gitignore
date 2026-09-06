@@ -52,3 +52,19 @@ prompt
 server.log
 # Skills directory
 /skills/
+
+# Android signing secrets & build artifacts
+*.keystore
+*.jks
+*.apk
+public/*.apk
+key.properties
+
+android/key.properties
+android/local.properties
+android/.gradle/
+android/app/build/
+android/build/
+android/capacitor-cordova-android-plugins/build/
+android/app/*.keystore
+android/app/*.jks
