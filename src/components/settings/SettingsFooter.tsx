@@ -7,7 +7,7 @@ import { haptic } from '@/lib/game/services/haptics'
 
 const INSTAGRAM_URL = 'https://instagram.com/malikali065'
 const WEBSITE_URL = 'https://arche-website.pages.dev'
-const ANDROID_APK_URL = '/imposter.apk'
+const ANDROID_APK_URL = 'https://github.com/miootech/imposter/releases/download/v2.4.0/imposter.apk'
 
 function AndroidIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
