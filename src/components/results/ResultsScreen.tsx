@@ -12,19 +12,21 @@ import { applyGameResult, getGroup } from '@/lib/repositories/groupRepository'
 import type { GameResult, Faction } from '@/lib/game/models'
 import { haptic } from '@/lib/game/services/haptics'
 import { playSound } from '@/lib/game/services/sound'
-
-const FACTION_INFO: Record<Faction, { label: string; color: string; icon: string }> = {
-  crew: { label: 'Crew gewinnt', color: 'var(--crewmate)', icon: '🛡️' },
-  traitor: { label: 'Verräter gewinnen', color: 'var(--impostor)', icon: '👤' },
-  neutral: { label: 'Unentschieden', color: 'var(--jester)', icon: '🤡' },
-}
+import { useTranslation } from '@/lib/i18n/useTranslation'
 
 export function ResultsScreen() {
+  const { t } = useTranslation()
   const session = useGameStore(s => s.session)
   const backToHome = useGameStore(s => s.backToHome)
   const setLastResult = useGameStore(s => s.setLastResult)
   const [result, setResult] = useState<GameResult | null>(null)
   const [saved, setSaved] = useState(false)
+
+  const factionInfo: Record<Faction, { label: string; color: string; icon: string }> = {
+    crew: { label: t('crewWon'), color: 'var(--crewmate)', icon: '🛡️' },
+    traitor: { label: t('impostorsWon'), color: 'var(--impostor)', icon: '👤' },
+    neutral: { label: t('jesterWon'), color: 'var(--jester)', icon: '🤡' },
+  }
 
   useEffect(() => {
     if (!session || !session.winnerFaction) return
@@ -56,7 +58,7 @@ export function ResultsScreen() {
     )
   }
 
-  const winnerInfo = FACTION_INFO[result.winnerFaction]
+  const winnerInfo = factionInfo[result.winnerFaction]
   const sortedResults = [...result.playerResults].sort((a, b) => b.pointsEarned - a.pointsEarned)
 
   return (
@@ -99,7 +101,7 @@ export function ResultsScreen() {
             transition={{ delay: 0.4 }}
             className="mt-1 text-sm text-muted-foreground"
           >
-            {result.roundCount} Runden · {result.eliminationOrder.length} Eliminierungen
+            {result.roundCount} {t('rounds')} · {result.eliminationOrder.length} {t('eliminations')}
           </motion.p>
         </motion.div>
 
@@ -113,7 +115,7 @@ export function ResultsScreen() {
             style={{ backgroundColor: 'var(--jester-soft)' }}
           >
             <p className="text-sm font-semibold" style={{ color: 'var(--jester)' }}>
-              {result.jesterFirst ? '🤡 Jester wurde als Erster eliminiert — Mission erfüllt!' : '🤡 Jester hat überlebt — Beeindruckend!'}
+              {result.jesterFirst ? t('jesterFirstEliminated') : t('jesterSurvivedMsg')}
             </p>
           </motion.div>
         )}
@@ -138,10 +140,10 @@ export function ResultsScreen() {
               🎯
             </motion.div>
             <p className="text-sm font-bold" style={{ color: 'var(--impostor)' }}>
-              MÄRTYRER ELIMINIERT!
+              {t('martyrEliminatedTitle')}
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              +3 Punkte für die Verräter.
+              {t('martyrEliminatedDesc')}
             </p>
           </motion.div>
         )}
@@ -149,7 +151,7 @@ export function ResultsScreen() {
         {/* Player results */}
         <div className="mt-8 space-y-2">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            Punkte
+            {t('points')}
           </h2>
           {sortedResults.map((pr, idx) => {
             const player = session.players.find(p => p.id === pr.playerId)!
@@ -206,7 +208,7 @@ export function ResultsScreen() {
             className="mt-8"
           >
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Eliminierungs-Reihenfolge
+              {t('eliminationOrder')}
             </h2>
             <div className="flex flex-wrap gap-2">
               {result.eliminationOrder.map((id, idx) => {
@@ -242,7 +244,7 @@ export function ResultsScreen() {
             animate={{ opacity: 1 }}
             className="mt-6 text-center text-xs text-muted-foreground"
           >
-            ✓ Statistiken aktualisiert
+            {t('statsUpdated')}
           </motion.p>
         )}
       </div>
@@ -267,7 +269,7 @@ export function ResultsScreen() {
             leftIcon={<Home className="h-5 w-5" />}
             className="shadow-2xl"
           >
-            Zurück zum Home
+            {t('backToHome')}
           </GameButton>
         </div>
       </motion.div>

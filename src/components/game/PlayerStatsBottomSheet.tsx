@@ -17,6 +17,8 @@ import { ROLES } from '@/lib/game/models'
 import { haptic } from '@/lib/game/services/haptics'
 import { cn } from '@/lib/utils'
 
+import { useTranslation } from '@/lib/i18n/useTranslation'
+
 export interface StatsModalEntry {
   icon: string
   label: string
@@ -62,20 +64,22 @@ export function PlayerStatsBottomSheet({
   entries,
   factionWins,
 }: PlayerStatsBottomSheetProps) {
+  const { t } = useTranslation()
+
   // Build entries from stats if not provided directly
   const computedEntries = useMemo<StatsModalEntry[]>(() => {
     if (entries) return entries
     if (!stats) return []
     return [
-      { icon: '🎮', label: 'Spiele', value: stats.gamesPlayed, color: 'var(--primary)' },
-      { icon: '🏆', label: 'Siege', value: stats.wins, color: 'var(--success)' },
-      { icon: '💀', label: 'Niederlagen', value: stats.losses, color: 'var(--destructive)' },
-      { icon: '⭐', label: 'Punkte', value: stats.totalPoints, color: 'var(--accomplice)' },
-      { icon: '🛡️', label: 'Überlebt', value: stats.survived, color: 'var(--crewmate)' },
-      { icon: '☠️', label: 'Eliminiert', value: stats.eliminations, color: 'var(--impostor)' },
-      { icon: '🤡', label: 'Jester-Erfolg', value: stats.jesterSuccess, color: 'var(--jester)' },
+      { icon: '🎮', label: t('games'), value: stats.gamesPlayed, color: 'var(--primary)' },
+      { icon: '🏆', label: t('wins'), value: stats.wins, color: 'var(--success)' },
+      { icon: '💀', label: t('losses'), value: stats.losses, color: 'var(--destructive)' },
+      { icon: '⭐', label: t('points'), value: stats.totalPoints, color: 'var(--accomplice)' },
+      { icon: '🛡️', label: t('survived'), value: stats.survived, color: 'var(--crewmate)' },
+      { icon: '☠️', label: t('eliminated'), value: stats.eliminations, color: 'var(--impostor)' },
+      { icon: '🤡', label: t('jesterSuccess'), value: stats.jesterSuccess, color: 'var(--jester)' },
     ]
-  }, [entries, stats])
+  }, [entries, stats, t])
 
   // Resolve faction wins for the 4-segment bar:
   //   1. Explicit `factionWins` prop (SettingsScreen global modal)
@@ -108,12 +112,12 @@ export function PlayerStatsBottomSheet({
           <DialogTitle className="flex items-center gap-2">
             {playerName ? (
               <>
-                <span>Statistiken</span>
+                <span>{t('stats')}</span>
                 <span className="text-muted-foreground">·</span>
                 <span className="text-primary">{playerName}</span>
               </>
             ) : (
-              'Globale Statistiken'
+              t('globalStats')
             )}
           </DialogTitle>
         </DialogHeader>
@@ -170,7 +174,7 @@ export function PlayerStatsBottomSheet({
               className="rounded-2xl bg-card p-4 ring-1 ring-border"
             >
               <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Rollen-Verteilung
+                {t('roleDistribution')}
               </p>
               <div className="space-y-2">
                 {roleEntries.map((re, idx) => {

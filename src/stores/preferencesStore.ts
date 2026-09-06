@@ -28,6 +28,8 @@ interface PreferencesState extends Preferences {
   setUserEmoji: (emoji: string) => void
   setGradientPreset: (preset: string) => void
   setBgMusicEnabled: (enabled: boolean) => void
+  setUiLanguage: (lang: 'de' | 'en') => void
+  setWordLanguage: (lang: 'de' | 'en') => void
   reset: () => void
 }
 
@@ -85,6 +87,14 @@ export const usePreferencesStore = create<PreferencesState>((set, get) => ({
   },
   setBgMusicEnabled: (enabled) => {
     set({ bgMusicEnabled: enabled })
+    savePreferences(get())
+  },
+  setUiLanguage: (uiLanguage) => {
+    set({ uiLanguage })
+    savePreferences(get())
+  },
+  setWordLanguage: (wordLanguage) => {
+    set({ wordLanguage })
     savePreferences(get())
   },
   reset: () => {

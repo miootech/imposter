@@ -18,8 +18,10 @@ import { cn } from '@/lib/utils'
 import { haptic } from '@/lib/game/services/haptics'
 import { playSound } from '@/lib/game/services/sound'
 import { MIN_PLAYERS_PER_GROUP } from '@/lib/game/models'
+import { useTranslation } from '@/lib/i18n/useTranslation'
 
 export function SetupScreen() {
+  const { t } = useTranslation()
   const startGame = useGameStore(s => s.startGame)
   const cancelSetup = useGameStore(s => s.cancelSetup)
   const setLastUsedGroupId = usePreferencesStore(s => s.setLastUsedGroupId)
@@ -157,11 +159,11 @@ export function SetupScreen() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 mt-4 text-2xl font-bold tracking-tight text-foreground"
         >
-          Spiel einrichten
+          {t('setupTitle')}
         </motion.h1>
 
         {/* Group selection */}
-        <Section title="Gruppe">
+        <Section title={t('selectGroupLabel')}>
           <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 no-scrollbar">
             {groups.map(g => (
               <button
@@ -190,7 +192,7 @@ export function SetupScreen() {
                 </div>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-foreground">{g.name}</p>
-                  <p className="text-xs text-muted-foreground">{g.players.length} Spieler</p>
+                  <p className="text-xs text-muted-foreground">{g.players.length} {t('players')}</p>
                 </div>
               </button>
             ))}
@@ -198,7 +200,7 @@ export function SetupScreen() {
         </Section>
 
         {/* Mode selector */}
-        <Section title="Modus">
+        <Section title={t('gameMode')}>
           <ModeSlider
             value={config.mode}
             onChange={(mode) => {
@@ -213,18 +215,18 @@ export function SetupScreen() {
           />
           <div className="mt-2 rounded-xl bg-muted/50 p-3 text-xs text-muted-foreground">
             {config.mode === 'normal' ? (
-              <>Hints aktiv. Der Impostor sieht die Kategorie, der Detective sieht das Wort + den Hint.</>
+              <>{t('modeNormalDesc')}</>
             ) : (
-              <>Keine Hints. Der Impostor tappt im Dunkeln. Kein Detective. Der Accomplice sieht nur die Kategorie.</>
+              <>{t('modeHardDesc')}</>
             )}
           </div>
         </Section>
 
         {/* Roles */}
-        <Section title="Rollen">
+        <Section title={t('specialRoles')}>
           <RoleCounter
-            label="Impostoren"
-            description={`Empfohlen für ${playerCount} Spieler: ${defaultImpostorCount(playerCount)}`}
+            label={t('roleImpostor')}
+            description={`Max: ${specMax}`}
             value={config.impostorCount}
             min={1}
             max={specMax}
@@ -290,7 +292,7 @@ export function SetupScreen() {
         )}
 
         {/* Chaos Mode toggle */}
-        <Section title="Chaos">
+        <Section title={t('chaosMode')}>
           <ChaosModeToggle
             enabled={config.chaosMode}
             onToggle={() => {
@@ -302,7 +304,7 @@ export function SetupScreen() {
         </Section>
 
         {/* Category selection — compact single-card display with bottom-sheet selector */}
-        <Section title="Kategorie">
+        <Section title={t('category')}>
           <CompactCategoryCard
             categoryId={config.categoryId}
             onChange={() => {
@@ -341,7 +343,7 @@ export function SetupScreen() {
             <div className="mb-4 flex items-start gap-3 rounded-2xl bg-warning/10 p-4">
               <Info className="h-5 w-5 shrink-0 text-warning" />
               <p className="text-sm text-warning-foreground">
-                Crew-Fraktion (🛡️+🔎 = {crewFaction}) muss stärker sein als Verräter (👤+⭐ = {traitorFaction}).{composition.crewmate < 1 ? ' Außerdem mind. 1 reiner Crewmate nötig.' : ''}
+                Crew (🛡️+🔎 = {crewFaction}) vs Traitor (👤+⭐ = {traitorFaction}).
               </p>
             </div>
           )
@@ -365,7 +367,7 @@ export function SetupScreen() {
             onClick={handleStart}
             className="shadow-2xl"
           >
-            Spiel starten · {playerCount} Spieler
+            {t('startRound')} · {playerCount} {t('players')}
           </GameButton>
         </div>
       </motion.div>
@@ -385,6 +387,7 @@ export function SetupScreen() {
 }
 
 function BackButton({ onBack }: { onBack: () => void }) {
+  const { t } = useTranslation()
   return (
     <button
       onClick={() => {
@@ -394,7 +397,7 @@ function BackButton({ onBack }: { onBack: () => void }) {
       className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
     >
       <ArrowLeft className="h-4 w-4" />
-      Zurück
+      {t('back')}
     </button>
   )
 }

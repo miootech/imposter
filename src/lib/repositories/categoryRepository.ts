@@ -10,7 +10,7 @@
 
 import { getDb, type CustomCategoryRecord } from '../db/localDb'
 import type { Category } from '../game/models'
-import { CATALOG } from '../game/content/catalog'
+import { CATALOG, getCatalog } from '../game/content/catalog'
 
 const MAX_CUSTOM_CATEGORIES = 5
 const MAX_WORDS_PER_CATEGORY = 100
@@ -90,9 +90,9 @@ export async function deleteCustomCategory(id: string): Promise<void> {
  * Get ALL categories: built-in + user-created.
  * Used by the game engine to pick words.
  */
-export async function getAllCategories(): Promise<Category[]> {
+export async function getAllCategories(language?: 'de' | 'en'): Promise<Category[]> {
   const custom = await listCustomCategories()
-  return [...CATALOG, ...custom.map(toCategory)]
+  return [...getCatalog(language), ...custom.map(toCategory)]
 }
 
 function toCategory(record: CustomCategoryRecord): Category {

@@ -10,7 +10,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from '@/components/ui/sheet'
-import { CATALOG, getTotalWordCount, RANDOM_CATEGORY_ID } from '@/lib/game/content/catalog'
+import { getCatalog, getTotalWordCount, RANDOM_CATEGORY_ID } from '@/lib/game/content/catalog'
 import { listCustomCategories } from '@/lib/repositories/categoryRepository'
 import type { Category } from '@/lib/game/models'
 import type { CustomCategoryRecord } from '@/lib/db/localDb'
@@ -18,6 +18,8 @@ import { IconRenderer } from '@/components/common/IconRenderer'
 import { haptic } from '@/lib/game/services/haptics'
 import { playSound } from '@/lib/game/services/sound'
 import { cn } from '@/lib/utils'
+import { useTranslation } from '@/lib/i18n/useTranslation'
+import { usePreferencesStore } from '@/stores/preferencesStore'
 
 interface CategorySelectorSheetProps {
   open: boolean
@@ -26,26 +28,14 @@ interface CategorySelectorSheetProps {
   onSelect: (categoryId: string) => void
 }
 
-/**
- * CategorySelectorSheet
- * ---------------------
- * Bottom-sheet category picker that scales gracefully to 100+ categories.
- *
- * Design rationale:
- *  - List layout (not grid): each row shows icon + name + word preview,
- *    making it easy to scan even with many categories
- *  - Search filters by name AND by word text (e.g. typing "Pizza" finds "Essen")
- *  - Staggered fade-in per item (capped delay so 100 items don't take forever)
- *  - Selected category: ring + check badge, animated in with spring
- *  - Drag handle + slide-up animation (shadcn Sheet handles platform specifics)
- *  - Recent / popular section could be added later (architecture supports it)
- */
 export function CategorySelectorSheet({
   open,
   onOpenChange,
   selectedId,
   onSelect,
 }: CategorySelectorSheetProps) {
+  const { t } = useTranslation()
+  const wordLanguage = usePreferencesStore((s) => s.wordLanguage)
   const [query, setQuery] = useState('')
   const [customCats, setCustomCats] = useState<CustomCategoryRecord[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
@@ -57,12 +47,12 @@ export function CategorySelectorSheet({
     }
   }, [open])
 
-  // Build merged category list: custom FIRST, then built-in (with isCustom flag)
+  // Build merged category list: custom FIRST, then built-in in selected wordLanguage
   const allCategories = useMemo(() => {
     const custom = customCats.map(c => ({ ...c, isCustom: true }))
-    const builtIn = CATALOG.map(c => ({ ...c, isCustom: false }))
+    const builtIn = getCatalog(wordLanguage).map(c => ({ ...c, isCustom: false }))
     return [...custom, ...builtIn]
-  }, [customCats])
+  }, [customCats, wordLanguage])
 
   // Reset search when sheet closes; focus input when it opens
   useEffect(() => {
@@ -103,9 +93,9 @@ export function CategorySelectorSheet({
         </div>
 
         <SheetHeader className="px-5 pb-2">
-          <SheetTitle className="text-xl">Kategorie wählen</SheetTitle>
+          <SheetTitle className="text-xl">{t('selectCategory')}</SheetTitle>
           <SheetDescription className="text-xs text-muted-foreground">
-            {filtered.length} von {allCategories.length} Kategorien
+            {filtered.length} / {allCategories.length} {t('category')}
           </SheetDescription>
         </SheetHeader>
 
@@ -118,7 +108,7 @@ export function CategorySelectorSheet({
               type="text"
               value={query}
               onChange={e => setQuery(e.target.value)}
-              placeholder="Suche Name oder Wort…"
+              placeholder={t('searchCategories')}
               className="h-11 w-full rounded-2xl border border-border bg-card pl-10 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             />
             {query && (
@@ -129,7 +119,7 @@ export function CategorySelectorSheet({
                   inputRef.current?.focus()
                 }}
                 className="absolute right-3 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground hover:text-foreground"
-                aria-label="Suche löschen"
+                aria-label="Clear search"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -176,10 +166,10 @@ export function CategorySelectorSheet({
                 'truncate font-semibold',
                 selectedId === RANDOM_CATEGORY_ID ? 'text-primary' : 'text-foreground',
               )}>
-                Zufall 🎲
+                {t('randomCategory')} 🎲
               </p>
               <p className="text-xs text-muted-foreground">
-                {getTotalWordCount()} Wörter aus allen Kategorien
+                {getTotalWordCount(wordLanguage)} {t('wordsCount')}
               </p>
             </div>
 
@@ -208,10 +198,7 @@ export function CategorySelectorSheet({
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <div className="mb-3 text-4xl opacity-50">🔍</div>
-              <p className="font-semibold text-foreground">Keine Treffer</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Versuch&apos;s mit einem anderen Suchbegriff.
-              </p>
+              <p className="font-semibold text-foreground">{t('error')}</p>
             </div>
           ) : (
             <motion.div layout className="space-y-1.5">

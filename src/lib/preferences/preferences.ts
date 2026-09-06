@@ -34,6 +34,10 @@ export interface Preferences {
   gradientPreset: string
   /** Background music enabled (replaces Haptics toggle in UI, but Haptics still works) */
   bgMusicEnabled: boolean
+  /** App UI language: 'de' (Deutsch) or 'en' (English) */
+  uiLanguage: 'de' | 'en'
+  /** In-game words, hints & categories language: 'de' (Deutsch) or 'en' (English) */
+  wordLanguage: 'de' | 'en'
 }
 
 export function defaultPreferences(): Preferences {
@@ -55,6 +59,8 @@ export function defaultPreferences(): Preferences {
     userEmoji: '🦊',
     gradientPreset: 'none',
     bgMusicEnabled: false,
+    uiLanguage: 'de',
+    wordLanguage: 'de',
   }
 }
 

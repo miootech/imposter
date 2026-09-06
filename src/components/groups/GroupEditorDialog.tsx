@@ -15,6 +15,8 @@ import { playSound } from '@/lib/game/services/sound'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
+import { useTranslation } from '@/lib/i18n/useTranslation'
+
 interface GroupEditorDialogProps {
   open: boolean
   onClose: () => void
@@ -22,6 +24,7 @@ interface GroupEditorDialogProps {
 }
 
 export function GroupEditorDialog({ open, onClose, onSaved }: GroupEditorDialogProps) {
+  const { t } = useTranslation()
   const [name, setName] = useState('')
   const [selectedIcon, setSelectedIcon] = useState(availableGroupIcons()[0])
   const [selectedColor, setSelectedColor] = useState(pickGroupColor(0))
@@ -45,7 +48,7 @@ export function GroupEditorDialog({ open, onClose, onSaved }: GroupEditorDialogP
 
   const handleSave = async () => {
     if (!name.trim()) {
-      setError('Bitte einen Namen eingeben.')
+      setError(t('enterPlayerNamePrompt'))
       haptic('error')
       return
     }
@@ -60,7 +63,7 @@ export function GroupEditorDialog({ open, onClose, onSaved }: GroupEditorDialogP
       playSound('vote')
       onSaved()
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unbekannter Fehler.')
+      setError(e instanceof Error ? e.message : 'Error')
       haptic('error')
     } finally {
       setSaving(false)
@@ -72,15 +75,15 @@ export function GroupEditorDialog({ open, onClose, onSaved }: GroupEditorDialogP
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Neue Gruppe</DialogTitle>
+          <DialogTitle>{t('newGroup')}</DialogTitle>
           <DialogDescription>
-            Erstelle eine Gruppe, um Spieler und Punkte zu verwalten.
+            {t('createGroupDesc')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 py-2">
           <div className="space-y-2">
-            <Label htmlFor="group-name">Gruppenname</Label>
+            <Label htmlFor="group-name">{t('groupName')}</Label>
             <Input
               id="group-name"
               autoFocus
@@ -103,12 +106,12 @@ export function GroupEditorDialog({ open, onClose, onSaved }: GroupEditorDialogP
               >
                 <IconRenderer icon={selectedIcon} size={56} />
               </button>
-              <p className="text-xs text-muted-foreground">Tippen zum Auswählen</p>
+              <p className="text-xs text-muted-foreground">{t('tapToSelect')}</p>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label>Farbe</Label>
+            <Label>{t('color')}</Label>
             <div className="flex flex-wrap gap-2">
               {Array.from({ length: 10 }).map((_, i) => {
                 const color = pickGroupColor(i)
@@ -143,10 +146,10 @@ export function GroupEditorDialog({ open, onClose, onSaved }: GroupEditorDialogP
 
         <div className="flex gap-3">
           <GameButton variant="ghost" fullWidth onClick={onClose}>
-            Abbrechen
+            {t('cancel')}
           </GameButton>
           <GameButton fullWidth onClick={handleSave} loading={saving}>
-            Erstellen
+            {t('create')}
           </GameButton>
         </div>
       </DialogContent>
@@ -156,7 +159,7 @@ export function GroupEditorDialog({ open, onClose, onSaved }: GroupEditorDialogP
     <EmojiPickerModal
       open={iconPickerOpen}
       onClose={() => setIconPickerOpen(false)}
-      title="Gruppen-Icon"
+      title="Icon"
       currentEmoji={selectedIcon}
       onSelect={(emoji) => setSelectedIcon(emoji)}
     />

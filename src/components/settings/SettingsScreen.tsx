@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { Moon, Sun, Volume2, VolumeX, Music, Smile, RotateCcw, Info, Sparkles, Download, Upload, Palette } from 'lucide-react'
+import { Moon, Sun, Volume2, VolumeX, Music, Smile, RotateCcw, Info, Sparkles, Download, Upload, Palette, Languages, BookOpen } from 'lucide-react'
 import { usePreferencesStore } from '@/stores/preferencesStore'
 import { ROLES, type RoleId } from '@/lib/game/models'
 import { GameButton } from '@/components/game/GameButton'
@@ -19,6 +19,7 @@ import { aggregateGlobalStats } from '@/lib/repositories/groupRepository'
 import { getDb } from '@/lib/db/localDb'
 import { haptic } from '@/lib/game/services/haptics'
 import { playSound } from '@/lib/game/services/sound'
+import { useTranslation } from '@/lib/i18n/useTranslation'
 import {
   Dialog,
   DialogContent,
@@ -32,6 +33,7 @@ import { cn } from '@/lib/utils'
 const APP_VERSION = '2.4.0'
 
 export function SettingsScreen() {
+  const { t } = useTranslation()
   const prefs = usePreferencesStore()
   const [emojiPickerOpen, setEmojiPickerOpen] = useState<RoleId | null>(null)
   const [statsOpen, setStatsOpen] = useState(false)
@@ -134,7 +136,7 @@ export function SettingsScreen() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 text-2xl font-bold tracking-tight text-foreground"
         >
-          Einstellungen
+          {t('settingsTitle')}
         </motion.h1>
 
         {/* User Profile Section (Feature #1) */}
@@ -218,8 +220,91 @@ export function SettingsScreen() {
           </div>
         </Section>
 
+        {/* Language & Content Section */}
+        <Section title={t('languageSection')}>
+          {/* App UI Language Toggle */}
+          <div className="rounded-2xl bg-card p-4 ring-1 ring-border">
+            <button
+              onClick={() => {
+                haptic('medium')
+                const nextLang = prefs.uiLanguage === 'de' ? 'en' : 'de'
+                prefs.setUiLanguage(nextLang)
+                playSound('select')
+              }}
+              className="flex w-full items-center gap-3"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Languages className="h-5 w-5" />
+              </div>
+              <div className="flex-1 text-left">
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold text-foreground">{t('uiLanguageTitle')}</p>
+                  <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    {prefs.uiLanguage === 'en' ? 'EN' : 'DE'}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">{t('uiLanguageDesc')}</p>
+              </div>
+              <div
+                className={cn(
+                  'relative h-6 w-11 rounded-full transition-colors',
+                  prefs.uiLanguage === 'en' ? 'bg-primary' : 'bg-muted',
+                )}
+              >
+                <motion.div
+                  className="absolute top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[9px] font-bold text-black shadow-sm"
+                  animate={{ x: prefs.uiLanguage === 'en' ? 22 : 2 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                >
+                  {prefs.uiLanguage === 'en' ? 'EN' : 'DE'}
+                </motion.div>
+              </div>
+            </button>
+          </div>
+
+          {/* Words & Hints Language Toggle */}
+          <div className="rounded-2xl bg-card p-4 ring-1 ring-border">
+            <button
+              onClick={() => {
+                haptic('medium')
+                const nextLang = prefs.wordLanguage === 'de' ? 'en' : 'de'
+                prefs.setWordLanguage(nextLang)
+                playSound('select')
+              }}
+              className="flex w-full items-center gap-3"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500">
+                <BookOpen className="h-5 w-5" />
+              </div>
+              <div className="flex-1 text-left">
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold text-foreground">{t('wordLanguageTitle')}</p>
+                  <span className="rounded-md bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                    {prefs.wordLanguage === 'en' ? 'EN' : 'DE'}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">{t('wordLanguageDesc')}</p>
+              </div>
+              <div
+                className={cn(
+                  'relative h-6 w-11 rounded-full transition-colors',
+                  prefs.wordLanguage === 'en' ? 'bg-emerald-600' : 'bg-muted',
+                )}
+              >
+                <motion.div
+                  className="absolute top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[9px] font-bold text-black shadow-sm"
+                  animate={{ x: prefs.wordLanguage === 'en' ? 22 : 2 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                >
+                  {prefs.wordLanguage === 'en' ? 'EN' : 'DE'}
+                </motion.div>
+              </div>
+            </button>
+          </div>
+        </Section>
+
         {/* Sound & Haptics */}
-        <Section title="Feedback">
+        <Section title={t('audioSection')}>
           <ToggleRow
             label="Sound"
             description="Kurze, hochwertige Sounds"
@@ -314,33 +399,40 @@ export function SettingsScreen() {
         </Section>
 
         {/* Role Icons */}
-        <Section title="Rollen-Icons">
+        <Section title={t('roleEmojis')}>
           <p className="mb-3 text-xs text-muted-foreground">
-            Passe die Emojis für jede Rolle an. Die Rollenfarbe bleibt erhalten.
+            {t('roleEmojisDesc')}
           </p>
           <div className="space-y-2">
-            {(Object.keys(ROLES) as RoleId[]).map(role => (
-              <button
-                key={role}
-                onClick={() => {
-                  haptic('light')
-                  setEmojiPickerOpen(role)
-                }}
-                className="flex w-full items-center gap-3 rounded-2xl bg-card p-3 text-left shadow-sm ring-1 ring-border transition-shadow hover:shadow-md"
-              >
-                <div
-                  className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl text-2xl"
-                  style={{ backgroundColor: `var(--${ROLES[role].colorVar}-soft)` }}
+            {(Object.keys(ROLES) as RoleId[]).map(role => {
+              const roleKey = role === 'crewmate' ? 'crewmateDesc'
+                : role === 'detective' ? 'detectiveDesc'
+                : role === 'impostor' ? 'impostorDesc'
+                : role === 'accomplice' ? 'accompliceDesc'
+                : 'jesterDesc'
+              return (
+                <button
+                  key={role}
+                  onClick={() => {
+                    haptic('light')
+                    setEmojiPickerOpen(role)
+                  }}
+                  className="flex w-full items-center gap-3 rounded-2xl bg-card p-3 text-left shadow-sm ring-1 ring-border transition-shadow hover:shadow-md"
                 >
-                  <IconRenderer icon={prefs.roleEmojis[role]} size={44} />
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-foreground">{ROLES[role].germanName}</p>
-                  <p className="text-xs text-muted-foreground">{ROLES[role].description}</p>
-                </div>
-                <Smile className="h-4 w-4 text-muted-foreground" />
-              </button>
-            ))}
+                  <div
+                    className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl text-2xl"
+                    style={{ backgroundColor: `var(--${ROLES[role].colorVar}-soft)` }}
+                  >
+                    <IconRenderer icon={prefs.roleEmojis[role]} size={44} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-foreground">{ROLES[role].displayName}</p>
+                    <p className="text-xs text-muted-foreground">{t(roleKey as any)}</p>
+                  </div>
+                  <Smile className="h-4 w-4 text-muted-foreground" />
+                </button>
+              )
+            })}
           </div>
         </Section>
 
@@ -348,7 +440,7 @@ export function SettingsScreen() {
         <CustomCategoriesSection />
 
         {/* Reset */}
-        <Section title="Daten">
+        <Section title={t('dataPort')}>
           <div className="grid grid-cols-2 gap-2">
             <GameButton
               variant="secondary"

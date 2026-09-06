@@ -6,17 +6,19 @@ import { cn } from '@/lib/utils'
 import { useGameStore, type Tab } from '@/stores/gameStore'
 import { haptic } from '@/lib/game/services/haptics'
 import { playSound } from '@/lib/game/services/sound'
-
-const TABS: Array<{ id: Tab; label: string; icon: typeof Home }> = [
-  { id: 'home', label: 'Home', icon: Home },
-  { id: 'groups', label: 'Gruppen', icon: Users },
-  { id: 'settings', label: 'Settings', icon: Settings },
-]
+import { useTranslation } from '@/lib/i18n/useTranslation'
 
 export function BottomNav() {
+  const { t } = useTranslation()
   const activeTab = useGameStore(s => s.activeTab)
   const setActiveTab = useGameStore(s => s.setActiveTab)
   const gameScreen = useGameStore(s => s.gameScreen)
+
+  const tabs: Array<{ id: Tab; label: string; icon: typeof Home }> = [
+    { id: 'home', label: t('navHome'), icon: Home },
+    { id: 'groups', label: t('navGroups'), icon: Users },
+    { id: 'settings', label: t('navSettings'), icon: Settings },
+  ]
 
   // Hide bottom nav during active game play (preserve immersion)
   const inGame = gameScreen !== 'none'
@@ -31,7 +33,7 @@ export function BottomNav() {
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="mx-auto flex max-w-md items-stretch justify-around px-2">
-        {TABS.map(({ id, label, icon: Icon }) => {
+        {tabs.map(({ id, label, icon: Icon }) => {
           const active = activeTab === id
           return (
             <button

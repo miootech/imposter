@@ -12,8 +12,10 @@ import { haptic } from '@/lib/game/services/haptics'
 import { playSound } from '@/lib/game/services/sound'
 import { cn } from '@/lib/utils'
 import { IconRenderer } from '@/components/common/IconRenderer'
+import { useTranslation } from '@/lib/i18n/useTranslation'
 
 export function VotingScreen() {
+  const { t } = useTranslation()
   const session = useGameStore(s => s.session)
   const votes = useGameStore(s => s.votes)
   const submitVote = useGameStore(s => s.submitVote)
@@ -112,13 +114,13 @@ export function VotingScreen() {
           className="mb-6 text-center"
         >
           <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-            Abstimmung · {votes.size + 1} / {livingPlayers.length}
+            {t('votingTitle')} · {votes.size + 1} / {livingPlayers.length}
           </p>
           <h1 className="mt-2 text-3xl font-bold text-foreground">
             {currentVoter.displayName}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Wen möchtest du eliminieren? Self-Voting ist erlaubt.
+            {t('votingDesc')}
           </p>
         </motion.div>
 
@@ -257,6 +259,7 @@ function HoldToConfirmButton({
   onConfirm: () => void
   onCancel: () => void
 }) {
+  const { t } = useTranslation()
   const [progress, setProgress] = useState(0)
   const [holding, setHolding] = useState(false)
   const startTimeRef = useRef<number | null>(null)
@@ -298,14 +301,14 @@ function HoldToConfirmButton({
   return (
     <div className="rounded-2xl bg-card p-4 shadow-2xl ring-1 ring-border">
       <p className="mb-2 text-center text-sm text-muted-foreground">
-        Halten, um <span className="font-bold text-foreground">{targetName}</span> zu eliminieren
+        {targetName}
       </p>
       <div className="flex gap-2">
         <button
           onClick={onCancel}
           className="rounded-xl bg-muted px-4 text-sm font-semibold text-foreground"
         >
-          Abbrechen
+          {t('cancel')}
         </button>
         <motion.button
           onPointerDown={(e) => {
@@ -343,7 +346,7 @@ function HoldToConfirmButton({
           />
           <span className="relative inline-flex items-center gap-2 pointer-events-none">
             <ArrowRight className="h-4 w-4" />
-            Bestätigen
+            {t('confirm')}
           </span>
         </motion.button>
       </div>

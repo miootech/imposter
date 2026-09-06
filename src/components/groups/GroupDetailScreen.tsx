@@ -43,7 +43,10 @@ import { haptic } from '@/lib/game/services/haptics'
 import { playSound } from '@/lib/game/services/sound'
 import { cn } from '@/lib/utils'
 
+import { useTranslation } from '@/lib/i18n/useTranslation'
+
 export function GroupDetailScreen() {
+  const { t } = useTranslation()
   const groupId = useGameStore(s => s.selectedGroupId)
   const openGroupDetail = useGameStore(s => s.openGroupDetail)
   const startSetup = useGameStore(s => s.startSetup)
@@ -81,8 +84,8 @@ export function GroupDetailScreen() {
   if (!group) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4">
-        <p className="text-muted-foreground">Gruppe nicht gefunden.</p>
-        <GameButton onClick={() => openGroupDetail(null)}>Zurück</GameButton>
+        <p className="text-muted-foreground">{t('groupNotFound')}</p>
+        <GameButton onClick={() => openGroupDetail(null)}>{t('back')}</GameButton>
       </div>
     )
   }
@@ -110,7 +113,7 @@ export function GroupDetailScreen() {
             className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
-            Zurück
+            {t('back')}
           </button>
 
           <div className="flex items-center gap-4">
@@ -123,13 +126,13 @@ export function GroupDetailScreen() {
             <div className="min-w-0 flex-1">
               <h1 className="truncate text-2xl font-bold text-foreground">{group.name}</h1>
               <p className="text-sm text-muted-foreground">
-                {group.players.length} Spieler · {totalGames} Spiele
+                {group.players.length} {t('players')} · {totalGames} {t('games')}
               </p>
             </div>
             <button
               onClick={() => setEditGroupOpen(true)}
               className="flex h-10 w-10 items-center justify-center rounded-full bg-card text-muted-foreground shadow-sm hover:text-foreground"
-              aria-label="Gruppe bearbeiten"
+              aria-label={t('editGroup')}
             >
               <Pencil className="h-4 w-4" />
             </button>
@@ -147,19 +150,19 @@ export function GroupDetailScreen() {
           >
             <StatCard
               icon={<Trophy className="h-4 w-4" />}
-              label="Punkte"
+              label={t('points')}
               value={group.players.reduce((s, p) => s + p.points, 0)}
               color="var(--primary)"
             />
             <StatCard
               icon={<Gamepad2 className="h-4 w-4" />}
-              label="Spiele"
+              label={t('games')}
               value={totalGames}
               color="var(--detective)"
             />
             <StatCard
               icon={<Skull className="h-4 w-4" />}
-              label="Eliminiert"
+              label={t('eliminated')}
               value={group.players.reduce((s, p) => s + p.stats.eliminations, 0)}
               color="var(--impostor)"
             />
@@ -168,7 +171,7 @@ export function GroupDetailScreen() {
 
         {/* Players list */}
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-foreground">Spieler</h2>
+          <h2 className="text-lg font-bold text-foreground">{t('players')}</h2>
           {group.players.length < 12 && (
             <GameButton
               size="sm"
@@ -176,7 +179,7 @@ export function GroupDetailScreen() {
               leftIcon={<Plus className="h-4 w-4" />}
               onClick={() => setAddDialogOpen(true)}
             >
-              Hinzufügen
+              {t('add')}
             </GameButton>
           )}
         </div>
@@ -184,9 +187,9 @@ export function GroupDetailScreen() {
         {group.players.length === 0 ? (
           <div className="flex flex-col items-center rounded-2xl border-2 border-dashed border-border p-8 text-center">
             <div className="mb-3 text-4xl">👥</div>
-            <p className="font-semibold text-foreground">Keine Spieler</p>
+            <p className="font-semibold text-foreground">{t('noPlayersYet')}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Füge mindestens 3 Spieler hinzu, um zu spielen.
+              {t('minPlayersNotice')}
             </p>
           </div>
         ) : (
@@ -228,7 +231,7 @@ export function GroupDetailScreen() {
             leftIcon={<Trash2 className="h-4 w-4" />}
             onClick={() => setDeleteOpen(true)}
           >
-            Gruppe löschen
+            {t('deleteGroup')}
           </GameButton>
         </div>
       </div>
@@ -252,7 +255,7 @@ export function GroupDetailScreen() {
               }}
               className="shadow-2xl"
             >
-              Spiel starten
+              {t('startNewGame')}
             </GameButton>
           </div>
         </motion.div>
@@ -287,14 +290,13 @@ export function GroupDetailScreen() {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Gruppe löschen?</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteGroupConfirmTitle')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Das löscht „{group.name}&quot; und alle zugehörigen Spieler und Statistiken.
-              Diese Aktion kann nicht rückgängig gemacht werden.
+              {t('deleteGroupConfirmDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={async () => {
@@ -302,7 +304,7 @@ export function GroupDetailScreen() {
                 openGroupDetail(null)
               }}
             >
-              Löschen
+              {t('delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -349,6 +351,7 @@ function AddPlayerDialog({
   onAdd: (name: string) => void
   existingNames: string[]
 }) {
+  const { t } = useTranslation()
   const [name, setName] = useState('')
   const [error, setError] = useState<string | null>(null)
 
@@ -361,11 +364,11 @@ function AddPlayerDialog({
 
   const handleAdd = () => {
     if (!name.trim()) {
-      setError('Bitte einen Namen eingeben.')
+      setError(t('enterPlayerNamePrompt'))
       return
     }
     if (existingNames.includes(name.trim().toLowerCase())) {
-      setError('Ein Spieler mit diesem Namen existiert bereits.')
+      setError(t('playerExistsPrompt'))
       return
     }
     onAdd(name.trim())
@@ -375,14 +378,14 @@ function AddPlayerDialog({
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Spieler hinzufügen</DialogTitle>
+          <DialogTitle>{t('addPlayerTitle')}</DialogTitle>
           <DialogDescription>
-            Spieler können jederzeit hinzugefügt werden.
+            {t('addPlayerDesc')}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3 py-2">
           <div className="space-y-2">
-            <Label htmlFor="player-name">Anzeigename</Label>
+            <Label htmlFor="player-name">{t('displayName')}</Label>
             <Input
               id="player-name"
               autoFocus
@@ -399,10 +402,10 @@ function AddPlayerDialog({
         </div>
         <div className="flex gap-3">
           <GameButton variant="ghost" fullWidth onClick={onClose}>
-            Abbrechen
+            {t('cancel')}
           </GameButton>
           <GameButton fullWidth onClick={handleAdd}>
-            Hinzufügen
+            {t('add')}
           </GameButton>
         </div>
       </DialogContent>
@@ -421,6 +424,7 @@ function EditGroupDialog({
   onClose: () => void
   onSaved: () => void
 }) {
+  const { t } = useTranslation()
   const [name, setName] = useState(group.name)
   const [icon, setIcon] = useState(group.icon)
   const [color, setColor] = useState(group.color)
@@ -449,11 +453,11 @@ function EditGroupDialog({
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Gruppe bearbeiten</DialogTitle>
+          <DialogTitle>{t('editGroup')}</DialogTitle>
         </DialogHeader>
         <div className="space-y-5 py-2">
           <div className="space-y-2">
-            <Label htmlFor="edit-group-name">Name</Label>
+            <Label htmlFor="edit-group-name">{t('groupName')}</Label>
             <Input
               id="edit-group-name"
               value={name}
@@ -479,7 +483,7 @@ function EditGroupDialog({
             </div>
           </div>
           <div className="space-y-2">
-            <Label>Farbe</Label>
+            <Label>{t('color')}</Label>
             <div className="flex flex-wrap gap-2">
               {Array.from({ length: 10 }).map((_, i) => {
                 const c = paletteColor(i)
@@ -500,10 +504,10 @@ function EditGroupDialog({
         </div>
         <div className="flex gap-3">
           <GameButton variant="ghost" fullWidth onClick={onClose}>
-            Abbrechen
+            {t('cancel')}
           </GameButton>
           <GameButton fullWidth onClick={handleSave} loading={saving}>
-            Speichern
+            {t('save')}
           </GameButton>
         </div>
       </DialogContent>

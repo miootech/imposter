@@ -13,8 +13,10 @@ import { ROLES } from '@/lib/game/models'
 import { haptic } from '@/lib/game/services/haptics'
 import { playSound } from '@/lib/game/services/sound'
 import { cn } from '@/lib/utils'
+import { useTranslation } from '@/lib/i18n/useTranslation'
 
 export function RevealScreen() {
+  const { t } = useTranslation()
   const session = useGameStore(s => s.session)
   const revealIndex = useGameStore(s => s.revealIndex)
   const markCurrentRevealed = useGameStore(s => s.markCurrentRevealed)
@@ -71,13 +73,13 @@ export function RevealScreen() {
           className="text-center"
         >
           <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-            Spieler {revealIndex + 1} / {session.assignments.length}
+            {t('players')} {revealIndex + 1} / {session.assignments.length}
           </p>
           <h1 className="mt-2 text-4xl font-bold tracking-tight text-foreground">
             {currentPlayer.displayName}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Nimm das Smartphone, wenn du dran bist.
+            {t('passDeviceTo')} {currentPlayer.displayName}
           </p>
         </motion.div>
 
@@ -376,21 +378,19 @@ function RevealedContent({
 }
 
 function SensitiveInfo({ assignment }: { assignment: PlayerRoleAssignment }) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-3">
       {assignment.word && (
-        <InfoBlock label="Dein Wort" value={assignment.word} highlight />
+        <InfoBlock label={t('secretWord')} value={assignment.word} highlight />
       )}
       {assignment.hint && (
-        <InfoBlock label="Hinweis" value={assignment.hint} />
+        <InfoBlock label={t('secretHint')} value={assignment.hint} />
       )}
       {!assignment.word && !assignment.hint && (
         <div className="rounded-2xl bg-card/60 p-4 text-center">
           <p className="text-sm text-muted-foreground">
-            Du erhältst keine Hinweise.
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Du bist komplett im Dunkeln.
+            {t('noOtherImpostors')}
           </p>
         </div>
       )}
@@ -422,6 +422,7 @@ function InfoBlock({ label, value, highlight }: { label: string; value: string; 
 }
 
 function TraitorInfo({ assignment }: { assignment: PlayerRoleAssignment }) {
+  const { t } = useTranslation()
   const session = useGameStore(s => s.session)
   if (!session) return null
   const known = assignment.knownTraitors ?? []
@@ -435,7 +436,7 @@ function TraitorInfo({ assignment }: { assignment: PlayerRoleAssignment }) {
       className="rounded-2xl bg-card p-4 text-center"
     >
       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        {assignment.role === 'impostor' ? 'Deine Verräter-Team' : 'Du kennst die Impostoren'}
+        {assignment.role === 'impostor' ? t('impostorTeammates') : t('accompliceTeammate')}
       </p>
       <div className="mt-3 flex flex-wrap justify-center gap-2">
         {traitorPlayers.map(p => (

@@ -10,24 +10,25 @@ import { GroupCard } from '@/components/groups/GroupCard'
 import { listGroups } from '@/lib/repositories/groupRepository'
 import { useEffect, useState } from 'react'
 import type { Group } from '@/lib/game/models'
-
-function getGreeting(): { text: string; sub: string } {
-  const hour = new Date().getHours()
-  if (hour < 6) return { text: 'Noch wach?', sub: 'Das wird gefährlich. 💀' }
-  if (hour < 11) return { text: 'Guten Morgen!', sub: 'Bereit für Chaos? 👀' }
-  if (hour < 14) return { text: 'Mahlzeit!', sub: 'Wer wird heute erwischt?' }
-  if (hour < 18) return { text: 'Zeit für eine Runde?', sub: 'Nur eine Runde… versprochen.' }
-  if (hour < 22) return { text: 'Guten Abend.', sub: 'Mal sehen, wer heute lügt. 👀' }
-  return { text: 'Noch wach?', sub: 'Das wird gefährlich. 💀' }
-}
+import { useTranslation } from '@/lib/i18n/useTranslation'
 
 export function HomeScreen() {
-  const greeting = useMemo(getGreeting, [])
+  const { t } = useTranslation()
   const startSetup = useGameStore(s => s.startSetup)
   const setActiveTab = useGameStore(s => s.setActiveTab)
   const openGroupDetail = useGameStore(s => s.openGroupDetail)
   const [groups, setGroups] = useState<Group[]>([])
   const [loading, setLoading] = useState(true)
+
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours()
+    if (hour < 6) return { text: t('greetingLate'), sub: t('greetingLateSub') }
+    if (hour < 11) return { text: t('greetingMorning'), sub: t('greetingMorningSub') }
+    if (hour < 14) return { text: t('greetingNoon'), sub: t('greetingNoonSub') }
+    if (hour < 18) return { text: t('greetingAfternoon'), sub: t('greetingAfternoonSub') }
+    if (hour < 22) return { text: t('greetingEvening'), sub: t('greetingEveningSub') }
+    return { text: t('greetingLate'), sub: t('greetingLateSub') }
+  }, [t])
 
   const refresh = async () => {
     try {
@@ -90,10 +91,10 @@ export function HomeScreen() {
                 Pass & Play
               </div>
               <h2 className="text-2xl font-bold leading-tight text-foreground">
-                Spiel starten
+                {t('startNewGame')}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                3–12 Spieler. Ein Smartphone. Geheime Rollen.
+                3–12 {t('players')}. 1 Device. {t('rolesOverview')}.
               </p>
               <div className="mt-5">
                 <GameButton
@@ -103,7 +104,7 @@ export function HomeScreen() {
                   onClick={startGameFlow}
                   rightIcon={<ChevronRight className="h-5 w-5" />}
                 >
-                  Los geht&apos;s
+                  {t('playNow')}
                 </GameButton>
               </div>
             </div>
@@ -118,12 +119,12 @@ export function HomeScreen() {
             transition={{ delay: 0.3 }}
             className="mb-4 flex items-center justify-between"
           >
-            <h3 className="text-lg font-bold text-foreground">Deine Gruppen</h3>
+            <h3 className="text-lg font-bold text-foreground">{t('yourGroups')}</h3>
             <button
               onClick={() => setActiveTab('groups')}
               className="text-sm font-medium text-primary"
             >
-              Alle ansehen
+              {t('groupsTitle')}
             </button>
           </motion.div>
         )}
@@ -139,9 +140,9 @@ export function HomeScreen() {
                 <Plus className="h-6 w-6" />
               </div>
               <div>
-                <p className="font-semibold text-foreground">Erste Gruppe erstellen</p>
+                <p className="font-semibold text-foreground">{t('createGroup')}</p>
                 <p className="text-sm text-muted-foreground">
-                  Noch keine Gruppe? Starte hier.
+                  {t('noGroupsPrompt')}
                 </p>
               </div>
             </motion.button>
@@ -164,7 +165,7 @@ export function HomeScreen() {
           transition={{ delay: 0.5 }}
           className="mt-10 text-center text-xs text-muted-foreground"
         >
-          100% offline · keine Accounts · keine Cloud
+          100% offline · No accounts · Local data
         </motion.p>
       </div>
     </div>

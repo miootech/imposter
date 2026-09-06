@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils'
 import type { Group } from '@/lib/game/models'
 import { haptic } from '@/lib/game/services/haptics'
 
+import { useTranslation } from '@/lib/i18n/useTranslation'
+
 interface GroupCardProps {
   group: Group
   onClick?: () => void
@@ -15,6 +17,7 @@ interface GroupCardProps {
 }
 
 export function GroupCard({ group, onClick, compact, className }: GroupCardProps) {
+  const { t } = useTranslation()
   return (
     <motion.button
       className={cn(
@@ -48,11 +51,11 @@ export function GroupCard({ group, onClick, compact, className }: GroupCardProps
           </div>
           <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
             <Users className="h-3.5 w-3.5" />
-            <span>{group.players.length} Spieler</span>
+            <span>{group.players.length} {t('players')}</span>
             {group.players.length > 0 && (
               <>
                 <span>·</span>
-                <span className="truncate">{group.players.reduce((s, p) => s + p.points, 0)} Punkte</span>
+                <span className="truncate">{group.players.reduce((s, p) => s + p.points, 0)} {t('points')}</span>
               </>
             )}
           </div>

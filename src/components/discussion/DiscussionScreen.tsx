@@ -11,8 +11,10 @@ import { GradientTimerBg } from '@/components/game/GradientTimerBg'
 import { currentTimerSeconds } from '@/lib/game/services/GameSessionManager'
 import { haptic } from '@/lib/game/services/haptics'
 import { TIMER_WARNING_THRESHOLD_SECONDS } from '@/lib/game/models'
+import { useTranslation } from '@/lib/i18n/useTranslation'
 
 export function DiscussionScreen() {
+  const { t } = useTranslation()
   const session = useGameStore(s => s.session)
   const startVoting = useGameStore(s => s.startVoting)
   const [remaining, setRemaining] = useState(0)
@@ -70,10 +72,10 @@ export function DiscussionScreen() {
           className="mb-8 text-center"
         >
           <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-            Diskussion
+            {t('discussionTitle')}
           </p>
           <h1 className="mt-1 text-2xl font-bold text-foreground">
-            Wer lügt?
+            {t('startPlayer')}: {startPlayer?.displayName}
           </h1>
         </motion.div>
 
@@ -102,7 +104,7 @@ export function DiscussionScreen() {
           className="mt-12 flex flex-col items-center gap-3"
         >
           <p className="text-center text-sm text-muted-foreground">
-            Tauscht Hinweise aus, diskutiert verdächtiges Verhalten, findet die Impostoren.
+            {t('startPlayerDesc')}
           </p>
           <GameButton
             variant="secondary"
@@ -112,7 +114,7 @@ export function DiscussionScreen() {
               startVoting()
             }}
           >
-            Vorzeitig zur Abstimmung
+            {t('goToVoting')}
           </GameButton>
         </motion.div>
       </div>

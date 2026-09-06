@@ -13,7 +13,10 @@ import { GameButton } from '@/components/game/GameButton'
 import { haptic } from '@/lib/game/services/haptics'
 import { playSound } from '@/lib/game/services/sound'
 
+import { useTranslation } from '@/lib/i18n/useTranslation'
+
 export function GroupsScreen() {
+  const { t } = useTranslation()
   const openGroupDetail = useGameStore(s => s.openGroupDetail)
   const [groups, setGroups] = useState<Group[]>([])
   const [loading, setLoading] = useState(true)
@@ -45,9 +48,9 @@ export function GroupsScreen() {
           className="mb-6 flex items-end justify-between"
         >
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">Gruppen</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">{t('groupsTitle')}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              {groups.length} / {MAX_GROUPS} erstellt
+              {groups.length} / {MAX_GROUPS} {t('createdCount')}
             </p>
           </div>
           {canCreate && (
@@ -60,7 +63,7 @@ export function GroupsScreen() {
                 setEditorOpen(true)
               }}
             >
-              Neu
+              {t('newBtn')}
             </GameButton>
           )}
         </motion.div>
@@ -85,9 +88,9 @@ export function GroupsScreen() {
             <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-primary/10 text-5xl">
               🎲
             </div>
-            <h3 className="text-lg font-bold text-foreground">Noch keine Gruppe?</h3>
+            <h3 className="text-lg font-bold text-foreground">{t('noGroupYetTitle')}</h3>
             <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-              Erstelle deine erste Gruppe und starte direkt eine Runde.
+              {t('createFirstGroupDesc')}
             </p>
             <div className="mt-6">
               <GameButton
@@ -95,7 +98,7 @@ export function GroupsScreen() {
                 leftIcon={<Plus className="h-5 w-5" />}
                 onClick={() => setEditorOpen(true)}
               >
-                Gruppe erstellen
+                {t('createGroup')}
               </GameButton>
             </div>
           </motion.div>
@@ -123,7 +126,7 @@ export function GroupsScreen() {
         {!canCreate && groups.length > 0 && (
           <div className="mt-6 flex items-start gap-3 rounded-2xl bg-warning/10 p-4 text-sm text-warning-foreground">
             <AlertCircle className="h-5 w-5 shrink-0 text-warning" />
-            <p>Maximal {MAX_GROUPS} Gruppen erreicht. Lösche eine Gruppe, um eine neue zu erstellen.</p>
+            <p>{t('maxGroupsLimitReached')}</p>
           </div>
         )}
       </div>

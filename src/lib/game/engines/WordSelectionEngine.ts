@@ -41,9 +41,10 @@ export function pickRandom<T>(arr: readonly T[], rng: () => number = Math.random
 export function selectWords(
   category: Category,
   rng: () => number = Math.random,
+  language?: 'de' | 'en',
 ): WordSelectionResult {
   const mainWordEntry = pickRandom(category.words, rng)
-  const otherCats = getOtherCategories(category.id)
+  const otherCats = getOtherCategories(category.id, language)
   if (otherCats.length === 0) {
     throw new Error('Cannot select jester word: no other categories exist.')
   }
