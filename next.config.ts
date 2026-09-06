@@ -1,10 +1,8 @@
 import type { NextConfig } from "next";
 
-const isCapacitor = process.env.CAPACITOR_BUILD === "true";
-
 const nextConfig: NextConfig = {
-  // Standalone for web/sandbox deployment, export for Capacitor Android
-  output: isCapacitor ? "export" : "standalone",
+  // Static export for Cloudflare Pages and Capacitor Android
+  output: "export",
   // Disable image optimization (both standalone server in container & static export work smoothly)
   images: {
     unoptimized: true,
